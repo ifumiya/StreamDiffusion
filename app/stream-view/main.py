@@ -37,12 +37,17 @@ def screen(
         if ret == False:
             print("skip frame")
             continue
-        frame2 = cv2.resize(frame, (910, 512))
-        croped = frame2[0:512, 199:(910 - 199)]
-        img = cv2.cvtColor(croped, cv2.COLOR_BGR2RGB)
-        img = PIL.Image.fromarray(img)
-        # img = PIL.Image.frombytes("RGB", croped.size, croped.bgra, "raw", "BGRX")
-        img.resize((height, width))
+
+        # crop and size to square
+        h, w, _ = frame.shape
+        l = min([w, h])
+        # left = center - half_shoter =  w/2 - h/2 , right = center + half_shoter
+        croped = frame[int((h - l) / 2):int((h + l) / 2), int((w - l) / 2):int((w + l) / 2)]
+        resized = cv2.resize(croped, (width, height))
+        # convert OpenCV to Pillow
+        rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+        img = PIL.Image.fromarray(rgb)
+
         inputs.append(pil2tensor(img))
         if stop_capture:
             cap.release()
