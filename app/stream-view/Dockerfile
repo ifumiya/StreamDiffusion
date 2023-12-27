@@ -17,6 +17,7 @@ COPY ./app/stream-view/ ./app/stream-view/
 COPY ./utils/ ./utils/
 
 RUN pip install -r /streamdiffusion/app/stream-view/requirements.txt
+RUN pip install accelerate
 
 CMD ["/bin/bash", "./app/stream-view/run.sh"]
 
