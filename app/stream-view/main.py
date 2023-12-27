@@ -22,10 +22,9 @@ stop_capture = False
 top = 0
 left = 0
 
-def screen(
+def capture(
     height: int = 512,
     width: int = 512,
-    monitor: Dict[str, int] = {"top": 300, "left": 200, "width": 512, "height": 512},
 ):
     global inputs
     global stop_capture
@@ -53,27 +52,6 @@ def screen(
             cap.release()
             return
 
-def dummy_screen(
-        width: int,
-        height: int,
-):
-    root = tk.Tk()
-    root.title("Press Enter to start")
-    root.geometry(f"{width}x{height}")
-    root.resizable(False, False)
-    root.attributes("-alpha", 0.8)
-    root.configure(bg="black")
-    def destroy(event):
-        root.destroy()
-    root.bind("<Return>", destroy)
-    def update_geometry(event):
-        global top, left
-        top = root.winfo_y()
-        left = root.winfo_x()
-    root.bind("<Configure>", update_geometry)
-    root.mainloop()
-    return {"top": top, "left": left, "width": width, "height": height}
-
 def image_generation_process(
     queue: Queue,
     fps_queue: Queue,
@@ -94,7 +72,6 @@ def image_generation_process(
     enable_similar_image_filter: bool,
     similar_image_filter_threshold: float,
     similar_image_filter_max_skip_frame: float,
-    monitor: Dict[str, int],
 ) -> None:
     """
     Process for generating images based on a prompt using a specified model.
@@ -177,7 +154,7 @@ def image_generation_process(
         delta=delta,
     )
 
-    input_screen = threading.Thread(target=screen, args=(height, width, monitor))
+    input_screen = threading.Thread(target=capture, args=(height, width))
     input_screen.start()
     time.sleep(5)
 
@@ -231,7 +208,6 @@ def main(
     """
     Main function to start the image generation and viewer processes.
     """
-    monitor = dummy_screen(width, height)
     ctx = get_context('spawn')
     queue = ctx.Queue()
     fps_queue = ctx.Queue()
@@ -257,7 +233,6 @@ def main(
             enable_similar_image_filter,
             similar_image_filter_threshold,
             similar_image_filter_max_skip_frame,
-            monitor
             ),
     )
     process1.start()
