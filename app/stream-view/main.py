@@ -7,9 +7,7 @@ from typing import List, Literal, Dict, Optional
 import torch
 import PIL.Image
 from streamdiffusion.image_utils import pil2tensor
-import mss
 import fire
-import tkinter as tk
 import cv2
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
