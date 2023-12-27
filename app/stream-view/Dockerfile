@@ -10,3 +10,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+WORKDIR /home/ubuntu/streamdiffusion
+
+
+COPY ./app/stream-view/ ./app/stream-view/
+COPY ./utils/ ./utils/
+
+RUN pip install -r /streamdiffusion/app/stream-view/requirements.txt
+
+CMD ["/bin/bash", "./app/stream-view/run.sh"]
+

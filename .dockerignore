@@ -1,4 +1,6 @@
 *
+!app/
+!utils/
 !README.md
 !src/
 !pyproject.toml
