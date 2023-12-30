@@ -1,0 +1,75 @@
+
+services:
+  app: 
+    image: stream-diffusion:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/home/ubuntu/streamdiffusion
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+    environment:
+      # WSLg
+      - DISPLAY=$DISPLAY
+      - WAYLAND_DISPLAY=$WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
+      - PULSE_SERVER=$PULSE_SERVER
+      # GPUを使うための設定
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    command: sleep infinity
+    deploy:
+      resources:
+        reservations:
+          devices:
+              - driver: nvidia
+                device_ids: ['0']
+                capabilities: [compute, utility]
+    
+  stream-view: 
+    image: stream-diffusion:stream-view
+    build:
+      context: ./
+      dockerfile: ./app/stream-view/Dockerfile
+    volumes:
+      # WSLg / X
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+      # cache
+      - engines:/home/ubuntu/streamdiffusion/app/stream-view/engines
+      - rootCache:/root/.cache
+      # models
+      - models:/models:ro
+    environment:
+      # WSLg
+      - DISPLAY=$DISPLAY
+      - WAYLAND_DISPLAY=$WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
+      - PULSE_SERVER=$PULSE_SERVER
+      # GPUを使うための設定
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      # StableDiffusion
+      # - SD_MODEL=/models/sd_turbo.safetensors
+      - SD_MODEL=KBlueLeaf/kohaku-v2.1
+    deploy:
+      resources:
+        reservations:
+          devices:
+              - driver: nvidia
+                device_ids: ['0']
+                capabilities: [compute, utility]
+
+  copy-models:
+    image: busybox
+    volumes:
+      - ./models/Model:/source/
+      - models:/destination/
+    command: cp -RT /source/ /destination/
+
+volumes:
+  models:
+  engines:
+  rootCache:
+
